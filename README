@@ -1,0 +1,5 @@
+SOFTWARE:
+    dg_setup.py
+
+OVERVIEW:
+    A python script to configure Data Guard.
