@@ -239,7 +239,7 @@ str = """
 %(backup_oracle_sid)s.__shared_io_pool_size=0
 %(backup_oracle_sid)s.__shared_pool_size=184549376
 %(backup_oracle_sid)s.__streams_pool_size=4194304
-*.audit_file_dest='/u01/base/admin/%(backup_db_unique_name)s/adump'
+*.audit_file_dest='%(backup_oracle_base)s/admin/%(backup_db_unique_name)s/adump'
 *.audit_trail='db'
 *.compatible='%(compatible)s'
 *.db_block_size=8192
@@ -249,7 +249,7 @@ str = """
 *.db_unique_name='%(backup_db_unique_name)s'
 *.db_recovery_file_dest='+%(backup_dg_fra_name)s'
 *.db_recovery_file_dest_size=4227858432
-*.diagnostic_dest='/u01/base'
+*.diagnostic_dest='%(backup_oracle_base)s'
 *.dispatchers='(PROTOCOL=TCP) (SERVICE=%(main_oracle_sid)sXDB)'
 *.fal_server='%(main_db_unique_name)s'
 *.log_archive_config='dg_config=(%(main_db_unique_name)s,%(backup_db_unique_name)s)'
@@ -265,14 +265,14 @@ str = """
 *.remote_login_passwordfile='EXCLUSIVE'
 *.standby_file_management='AUTO'
 *.undo_tablespace='UNDOTBS1'
-""" % {"main_db_unique_name":main_db_unique_name,"main_db_service":main_db_service,"backup_db_name":backup_db_name,"backup_db_unique_name":backup_db_unique_name,"main_dg_data_name":main_dg_data_name,"backup_dg_data_name":backup_dg_data_name,"main_dg_fra_name":main_dg_fra_name,"backup_dg_fra_name":backup_dg_fra_name,"main_oracle_sid":main_oracle_sid,"backup_oracle_sid":backup_oracle_sid,"backup_db_domain":backup_db_domain,"compatible":compatible}
+""" % {"main_db_unique_name":main_db_unique_name,"main_db_service":main_db_service,"backup_db_name":backup_db_name,"backup_db_unique_name":backup_db_unique_name,"main_dg_data_name":main_dg_data_name,"backup_dg_data_name":backup_dg_data_name,"main_dg_fra_name":main_dg_fra_name,"backup_dg_fra_name":backup_dg_fra_name,"main_oracle_sid":main_oracle_sid,"backup_oracle_sid":backup_oracle_sid,"backup_oracle_base":backup_oracle_base,"backup_db_domain":backup_db_domain,"compatible":compatible}
 f = open("/tmp/pfile", "w")
 f.write(str)
 f.close()
 # create spfile
-cmd = """sqlplus %s/%s as sysdba > /dev/null 2>&1 <<EOF
+cmd = """ORACLE_HOME=%s ORACLE_SID=%s %s/bin/sqlplus %s/%s as sysdba > /dev/null 2>&1 <<EOF
 create spfile='+%s/%s/spfile%s.ora' from pfile='/tmp/pfile';
-EOF""" % (backup_db_username, backup_db_password, backup_dg_data_name, backup_db_unique_name, backup_oracle_sid)
+EOF""" % (backup_oracle_home, backup_oracle_sid, backup_oracle_home, backup_db_username, backup_db_password, backup_dg_data_name, backup_db_unique_name, backup_oracle_sid)
 res = os.system(cmd)
 if not res == 0:
     print "Failed: %s" % cmd
